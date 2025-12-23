@@ -1,0 +1,1469 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>VaporGas</title>
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#101823;
+      --panel2:#0f1620;
+      --text:#e8eef7;
+      --muted:#9bb0c9;
+      --accent:#7cd4ff;
+      --good:#4be39a;
+      --warn:#ffcc66;
+      --bad:#ff6b6b;
+      --line:rgba(255,255,255,.10);
+      --shadow: 0 12px 40px rgba(0,0,0,.45);
+      --radius: 16px;
+      --radius2: 22px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family:var(--sans);
+      background: radial-gradient(1200px 700px at 20% -10%, rgba(124,212,255,.15), transparent 60%),
+                  radial-gradient(900px 600px at 110% 10%, rgba(75,227,154,.10), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+    }
+    .wrap{
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 80px;
+    }
+    header{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:16px;
+    }
+    .brand{ display:flex; flex-direction:column; gap:6px; }
+    .title{ font-size: 30px; letter-spacing: .4px; margin:0; }
+    .subtitle{ margin:0; color:var(--muted); font-size: 14px; line-height:1.35; }
+
+    .pillrow{ display:flex; gap:10px; flex-wrap:wrap; }
+    .pill{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      padding: 8px 10px;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 13px;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+    }
+    .pill b{ color:var(--text); font-weight:650; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:16px;
+    }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .panel .hd{
+      padding: 14px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      border-bottom:1px solid var(--line);
+      background: rgba(0,0,0,.12);
+    }
+    .panel .hd h2{ margin:0; font-size:16px; letter-spacing:.2px; }
+    .panel .hd .small{ color:var(--muted); font-size:13px; }
+    .panel .bd{ padding: 16px; }
+
+    .btnrow{ display:flex; gap:10px; flex-wrap:wrap; }
+
+    button{
+      font-family: inherit;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding: 10px 12px;
+      cursor:pointer;
+      transition: transform .06s ease, background .16s ease, border-color .16s ease, opacity .16s ease;
+      font-weight: 650;
+      letter-spacing:.2px;
+      white-space: nowrap;
+    }
+    button:hover{ background: rgba(255,255,255,.09); }
+    button:active{ transform: translateY(1px); }
+    button.primary{
+      border-color: rgba(124,212,255,.35);
+      background: rgba(124,212,255,.12);
+    }
+    button.primary:hover{ background: rgba(124,212,255,.18); }
+    button.good{
+      border-color: rgba(75,227,154,.35);
+      background: rgba(75,227,154,.12);
+    }
+    button.good:hover{ background: rgba(75,227,154,.18); }
+    button.danger{
+      border-color: rgba(255,107,107,.35);
+      background: rgba(255,107,107,.10);
+    }
+    button.danger:hover{ background: rgba(255,107,107,.16); }
+    button.ghost{
+      border-color: rgba(255,255,255,.10);
+      background: rgba(0,0,0,.10);
+      color: var(--muted);
+    }
+    button.ghost:hover{ background: rgba(255,255,255,.06); color: var(--text); }
+    button:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .cards{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    @media (max-width: 680px){
+      .cards{ grid-template-columns: 1fr; }
+    }
+    .card{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      border-radius: var(--radius);
+      padding: 12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height: 132px;
+    }
+    .cardTop{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .name{
+      font-weight: 800;
+      letter-spacing:.2px;
+      line-height:1.2;
+    }
+    .meta{
+      color:var(--muted);
+      font-size: 12.5px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+    }
+    .tag{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .tag.sale{ color: var(--accent); border-color: rgba(124,212,255,.25); }
+    .tag.fire{ color: #ffd0ff; border-color: rgba(255,120,255,.25); }
+    .tag.owned{ color: var(--good); border-color: rgba(75,227,154,.25); }
+    .tag.wish{ color: #ffd37a; border-color: rgba(255,204,102,.25); }
+
+    .priceRow{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:10px;
+    }
+    .price{
+      font-family: var(--mono);
+      font-weight: 900;
+      font-size: 18px;
+    }
+    .price small{
+      color: var(--muted);
+      font-weight: 650;
+      font-size: 12px;
+      margin-left:8px;
+      text-decoration: line-through;
+      opacity: .9;
+    }
+    .btnStack{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      align-items:center;
+    }
+
+    .tiny{
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.35;
+      white-space: pre-line;
+    }
+    .list{ display:flex; flex-direction:column; gap:10px; }
+    .row{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      padding: 10px 12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.14);
+      border-radius: 14px;
+    }
+    .row .left{ display:flex; flex-direction:column; gap:3px; }
+    .row .right{
+      text-align:right;
+      color:var(--muted);
+      font-size: 12.5px;
+      font-family: var(--mono);
+      white-space: nowrap;
+    }
+    .row .title2{ font-weight: 800; }
+    .row .rowBtns{ display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; }
+
+    .sep{ height:1px; background: var(--line); margin: 12px 0; }
+    .kbd{
+      font-family: var(--mono);
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* Modal */
+    .modalBackdrop{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.62);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 22px 16px;
+      z-index: 1000;
+    }
+    .modal{
+      width: min(620px, 100%);
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.26));
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .modal .mhd{
+      padding: 14px 16px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .modal .mhd h3{ margin:0; font-size: 15px; }
+    .modal .mbd{ padding: 16px; }
+    .ratingBtns{ display:flex; gap:10px; flex-wrap:wrap; }
+    .ratingBtns button{ min-width: 160px; }
+
+    input, select{
+      font-family: inherit;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.22);
+      color: var(--text);
+      padding: 10px 12px;
+      outline:none;
+    }
+    label{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .formgrid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    @media (max-width: 680px){
+      .formgrid{ grid-template-columns: 1fr; }
+    }
+    .footerNote{
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.45;
+    }
+    .scoreBig{
+      font-family: var(--mono);
+      font-weight: 900;
+      font-size: 38px;
+      letter-spacing: .6px;
+      margin: 6px 0 2px;
+    }
+    table{
+      width:100%;
+      border-collapse: collapse;
+      overflow:hidden;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.14);
+    }
+    th, td{
+      padding: 10px 10px;
+      border-bottom:1px solid var(--line);
+      font-size: 13px;
+      text-align:left;
+    }
+    th{
+      color: var(--muted);
+      font-weight: 800;
+      background: rgba(255,255,255,.04);
+    }
+    tr:last-child td{ border-bottom:none; }
+    td.num{ text-align:right; font-family: var(--mono); color: var(--text); }
+    .hidden{ display:none !important; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <h1 class="title">VaporGas</h1>
+        <p class="subtitle">A 24-month turn-based “game store” strategy game. Buy smart. Rate later. Chase the leaderboard.</p>
+      </div>
+      <div class="pillrow" id="topPills"></div>
+    </header>
+
+    <!-- START SCREEN -->
+    <section class="panel" id="startPanel">
+      <div class="hd">
+        <h2>Start</h2>
+<p class="footerNote" style="margin-top:14px;">
+      Did you find the Easter Egg? <a href="mailto:quietworkgames@gmail.com">quietworkgames@gmail.com</a><br/>
+      Buy the team a coffee: <a href="https://ko-fi.com/quietworkgames" target="_blank" rel="noopener noreferrer">ko-fi.com/quietworkgames</a>
+    </p>
+        <div class="small">Tip: you can <span class="kbd">Save</span> mid-run and continue later.</div>
+      </div>
+      <div class="bd">
+        <div class="formgrid">
+          <label>
+            Start Month
+            <select id="startMonth">
+              <option value="0">JAN</option><option value="1">FEB</option><option value="2">MAR</option><option value="3">APR</option>
+              <option value="4">MAY</option><option value="5">JUN</option><option value="6">JUL</option><option value="7">AUG</option>
+              <option value="8">SEP</option><option value="9">OCT</option><option value="10">NOV</option><option value="11">DEC</option>
+            </select>
+          </label>
+
+          <label>
+            Start Year (4 digits)
+            <input id="startYear" inputmode="numeric" maxlength="4" placeholder="e.g. 2026" value="2026" />
+          </label>
+
+          <label>
+            Currency
+            <select id="currency">
+              <option value="$">$ (USD)</option>
+              <option value="£">£ (GBP)</option>
+              <option value="€">€ (EUR)</option>
+            </select>
+          </label>
+
+          <label>
+            Challenge Level
+            <select id="difficulty">
+              <option value="easy">Easy — start with 250</option>
+              <option value="hard">Hard — start with 100</option>
+              <option value="challenge">Challenge — start with 50</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="btnrow">
+          <button class="primary" id="btnNew">New Game</button>
+          <button id="btnContinue" class="good">Continue Saved Game</button>
+          <button id="btnWipe" class="danger">Delete Save</button>
+        </div>
+
+        <p class="footerNote">
+          Each month you see <b>7 games</b>. Exactly <b>5 are on sale</b>.
+          <br/>New: <b>Wishlist</b> (☆/★) slightly increases a game’s chance to appear, and very slightly nudges sale tiers upward when it’s on sale.
+          <br/>New: <b>Realistic store rotation</b> — recently seen games can reappear, but are strongly de-prioritized for a few months.
+        </p>
+      </div>
+    </section>
+
+    <!-- GAME SCREEN -->
+    <section class="grid hidden" id="gameGrid">
+      <section class="panel">
+        <div class="hd">
+          <h2 id="monthTitle">Store</h2>
+          <div class="btnrow">
+            <button id="btnSave">Save</button>
+            <button id="btnQuit" class="danger">Quit to Title</button>
+          </div>
+        </div>
+        <div class="bd">
+          <div class="cards" id="storeCards"></div>
+          <div class="sep"></div>
+          <div class="btnrow">
+            <div class="btnrow">
+  <button class="primary" id="btnNext">Next Month</button>
+  <button id="btnRateAll" class="ghost">Rate All Games</button>
+  <button id="btnEnd" class="danger">End</button>
+</div>
+          <p class="footerNote" id="storeNote"></p>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <div class="hd">
+          <h2>Library & Wishlist</h2>
+          <div class="small" id="ownedCount"></div>
+        </div>
+        <div class="bd">
+          <div class="tiny" id="wishlistSummary"></div>
+          <div class="list" id="wishlistList" style="margin-top:10px;"></div>
+
+          <div class="sep"></div>
+
+          <h3 style="margin:0 0 10px;font-size:14px;color:var(--muted);letter-spacing:.2px;">Owned</h3>
+          <div class="list" id="ownedList"></div>
+
+          <div class="sep"></div>
+          <div class="tiny" id="upcomingRatings"></div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- END / HIGHSCORE SCREEN -->
+    <section class="panel hidden" id="endPanel">
+      <div class="hd">
+        <h2>Run Complete</h2>
+        <div class="small">Month 24 finished — scoring + leaderboard</div>
+      </div>
+      <div class="bd">
+        <div class="scoreBig" id="finalScore">0</div>
+        <div class="tiny" id="scoreBreakdown"></div>
+
+        <div class="sep"></div>
+
+        <div class="formgrid">
+          <label>
+            Enter 2 initials
+            <input id="initials" maxlength="2" placeholder="AB" />
+          </label>
+          <div style="display:flex;align-items:flex-end;gap:10px;">
+            <button class="primary" id="btnSubmitScore">Submit Score</button>
+            <button id="btnRestart" class="good">Play Again</button>
+          </div>
+        </div>
+
+        <div class="sep"></div>
+
+        <h3 style="margin:0 0 10px;font-size:15px;">High Scores</h3>
+        <div id="hsWrap"></div>
+
+        <p class="footerNote">
+          Scoring per game uses an average of:
+          <b>Rating</b> (1–3),
+          <b>Price tier</b> (Low=1, Medium=2, High=3),
+          <b>Sale tier used</b> (So-so=1, Solid=2, Whoa!=3, FIRE!!=5; no sale=0).
+          Total score is the sum of per-game averages × 100.
+        </p>
+      </div>
+    </section>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modalBackdrop" id="modalBackdrop" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="mhd">
+        <h3 id="modalTitle">Rate a Game</h3>
+        <div class="small" id="modalSub" style="color:var(--muted);font-size:12.5px;"></div>
+      </div>
+      <div class="mbd">
+        <div class="tiny" id="modalText" style="margin-bottom:12px;"></div>
+        <div class="ratingBtns" id="modalBtns"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // -----------------------------
+  // Data
+  // -----------------------------
+  const GAME_LIBRARY = [
+    "Final Dragon RPG",
+    "Final Dragon RPG II",
+    "Final Dragon RPG III",
+    "Final Dragon RPG IV",
+    "Kart Racer",
+    "Kart Racer 2",
+    "Kart Racer 64",
+    "Plumber Scroller",
+    "Plumber Scroller 2",
+    "Plumber Scroller 3",
+    "Plumber Scroller World",
+    "Plumber Scroller World 2: Satoshi’s Island",
+    "Sword Quest",
+    "Sword Quest 2: The Adventure of Fresh",
+    "Sword Quest: Fresh to the Future",
+    "Sword Quest: A Fresh Awakening",
+    "Fast Hog",
+    "Fast Hog 2: Collect the Rings",
+    "Secret of Wafers Made With Honey",
+    "Chess",
+    "Bi-weekly",
+    "SwirlyTaste: Soda Maker Plant",
+    "The Big Apple Weekly: The Newsmagazine Plant",
+    "Cozy Farm Life",
+    "Cozy Frontier Life",
+    "Cozy City Life",
+    "Cozy Library Life",
+    "Mortal Fighter II",
+    "Great Man",
+    "Great Man 2",
+    "Great Man 3",
+    "Bionic Run & Gun",
+    "The Shortest Four Minutes",
+    "Final Dragon Legend",
+    "Transylvania II",
+    "World of Craft: War Edition",
+    "World of Craft: Mining Edition"
+  ];
+
+  const MONTHS = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+
+  const DIFFICULTY_START = { easy: 250, hard: 100, challenge: 50 };
+
+  const PRICE_TIERS = {
+    low:   { label: "Low",    min: 4,  max: 19, score: 1 },
+    medium:{ label: "Medium", min: 19, max: 34, score: 2 },
+    high:  { label: "High",   min: 39, max: 59, score: 3 }
+  };
+
+  // Sale categories: weights (original odds sum to 88)
+  const SALE_CATS = [
+    { key: "soso",  label: "So-so",  w: 40, minPct: 25, maxPct: 33, score: 1 },
+    { key: "solid", label: "Solid",  w: 25, minPct: 34, maxPct: 49, score: 2 },
+    { key: "whoa",  label: "Whoa!",  w: 15, minPct: 50, maxPct: 75, score: 3 },
+    { key: "fire",  label: "FIRE!!", w: 8,  minPct: 80, maxPct: 90, score: 5 }
+  ];
+
+  const LS_SAVE = "vaporgas_save_v2";
+  const LS_SAVE_V1 = "vaporgas_save_v1"; // migrate
+  const LS_HS   = "vaporgas_highscores_v1";
+
+  // -----------------------------
+  // Utilities
+  // -----------------------------
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+  const rint = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  const shuffle = (arr) => {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+  const fmtMoney = (sym, n) => `${sym}${n.toFixed(2)}`;
+
+  function priceDot99FromDollarRange(minDollar, maxDollar){
+    const d = rint(minDollar, maxDollar);
+    return d + 0.99;
+  }
+
+  // Sale price: compute discounted, then round DOWN to a .99 ending (never above discounted).
+  function discountToDot99(base, pctOff){
+    const discounted = base * (1 - pctOff/100);
+    let dollars = Math.floor(discounted);
+    let p = dollars + 0.99;
+    if (p > discounted) p = Math.max(0.99, (dollars - 1) + 0.99);
+    p = Math.min(p, base);
+    if (p < 0.99) p = 0.99;
+    return +p.toFixed(2);
+  }
+
+  function weightedPick(items){
+    const total = items.reduce((s, it) => s + it.w, 0);
+    let roll = Math.random() * total;
+    for (const it of items){
+      roll -= it.w;
+      if (roll <= 0) return it;
+    }
+    return items[items.length - 1];
+  }
+
+  function addMonths(startMonthIndex, startYear, offset){
+    const m = startMonthIndex + offset;
+    const year = startYear + Math.floor(m / 12);
+    const monthIndex = ((m % 12) + 12) % 12;
+    return { monthIndex, year };
+  }
+
+  function uniqUpper2(s){
+  return (s || "")
+    .toUpperCase()
+    .replace(/[^A-Z]/g,"")
+    .slice(0,2)
+    .padEnd(2,"A");
+}
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[c]));
+  }
+
+  // -----------------------------
+  // Pricing model: assign a base tier+price to every game once per run
+  // -----------------------------
+  function buildPriceBook(){
+    const priceBook = {};
+    for (const name of GAME_LIBRARY){
+      const roll = Math.random();
+      let tierKey = "medium";
+      if (roll < 0.25) tierKey = "low";
+      else if (roll > 0.82) tierKey = "high";
+
+      const tier = PRICE_TIERS[tierKey];
+      const base = priceDot99FromDollarRange(tier.min, tier.max);
+
+      priceBook[name] = {
+        tierKey,
+        tierLabel: tier.label,
+        tierScore: tier.score,
+        basePrice: +base.toFixed(2)
+      };
+    }
+    return priceBook;
+  }
+
+  // -----------------------------
+  // High scores
+  // -----------------------------
+  function defaultHighScores(){
+  const seeds = ["BS","SM","KB","EC","KM","PG","LG","SG","BG"];
+  const now = new Date();
+  return seeds.map((ini, idx) => ({
+    initials: uniqUpper2(ini),
+    score: 900 + (seeds.length - idx) * 85 + rint(-35, 60),
+    when: now.toISOString()
+  })).sort((a,b)=>b.score-a.score).slice(0,10);
+}
+
+  function loadHighScores(){
+    try{
+      const raw = localStorage.getItem(LS_HS);
+      if (!raw) {
+        const seeded = defaultHighScores();
+        localStorage.setItem(LS_HS, JSON.stringify(seeded));
+        return seeded;
+      }
+      const hs = JSON.parse(raw);
+      if (!Array.isArray(hs) || hs.length === 0) throw new Error("bad hs");
+      return hs;
+    }catch{
+      const seeded = defaultHighScores();
+      localStorage.setItem(LS_HS, JSON.stringify(seeded));
+      return seeded;
+    }
+  }
+
+  function saveHighScores(hs){
+    localStorage.setItem(LS_HS, JSON.stringify(hs));
+  }
+
+  function renderHighScores(hs){
+    const wrap = el("hsWrap");
+    const rows = hs.slice(0,10).map((h, i) => `
+      <tr>
+        <td>${i+1}</td>
+        <td style="font-family:var(--mono);font-weight:900;">${h.initials}</td>
+        <td class="num">${Math.round(h.score)}</td>
+      </tr>
+    `).join("");
+    wrap.innerHTML = `
+      <table aria-label="High Scores">
+        <thead><tr><th>#</th><th>Initials</th><th class="num">Score</th></tr></thead>
+        <tbody>${rows || ""}</tbody>
+      </table>
+    `;
+  }
+
+  // -----------------------------
+  // Game state
+  // -----------------------------
+  function newGameState({startMonthIndex, startYear, currency, difficulty}){
+    const priceBook = buildPriceBook();
+    return {
+      v: 2,
+      startMonthIndex,
+      startYear,
+      currency,
+      difficulty,
+      funds: DIFFICULTY_START[difficulty],
+      monthNum: 1, // 1..24
+      priceBook,
+
+      owned: [],       // purchases
+      wishlist: [],    // list of names (unique)
+      lastSeen: {},    // { [gameName]: monthNum } for store rotation realism
+      offer: [],
+
+      rngSalt: Math.random().toString(16).slice(2)
+    };
+  }
+
+  function saveGame(state){
+    localStorage.setItem(LS_SAVE, JSON.stringify(state));
+  }
+
+  function migrateV1ToV2(s){
+    // V1 structure compatibility: add wishlist + lastSeen
+    const v2 = {
+      ...s,
+      v: 2,
+      wishlist: Array.isArray(s.wishlist) ? s.wishlist : [],
+      lastSeen: (s.lastSeen && typeof s.lastSeen === "object") ? s.lastSeen : {}
+    };
+    // Ensure dedupe wishlist and remove owned
+    const ownedSet = new Set((v2.owned||[]).map(o=>o.name));
+    v2.wishlist = [...new Set(v2.wishlist)].filter(n => !ownedSet.has(n));
+    return v2;
+  }
+
+  function loadGame(){
+    // Prefer v2 save
+    try{
+      const raw2 = localStorage.getItem(LS_SAVE);
+      if (raw2){
+        const s2 = JSON.parse(raw2);
+        if (s2 && typeof s2 === "object" && s2.v === 2) return s2;
+      }
+    }catch{}
+
+    // Migrate v1 -> v2 if present
+    try{
+      const raw1 = localStorage.getItem(LS_SAVE_V1);
+      if (!raw1) return null;
+      const s1 = JSON.parse(raw1);
+      if (!s1 || typeof s1 !== "object") return null;
+      const migrated = migrateV1ToV2(s1);
+      // Write migrated to v2 key and delete v1 key
+      localStorage.setItem(LS_SAVE, JSON.stringify(migrated));
+      localStorage.removeItem(LS_SAVE_V1);
+      return migrated;
+    }catch{
+      return null;
+    }
+  }
+
+  function wipeSave(){
+    localStorage.removeItem(LS_SAVE);
+    localStorage.removeItem(LS_SAVE_V1);
+  }
+
+  // -----------------------------
+  // Wishlist
+  // -----------------------------
+  function isWishlisted(state, name){
+    return state.wishlist.includes(name);
+  }
+
+  function toggleWishlist(state, name){
+    const ownedSet = new Set(state.owned.map(o=>o.name));
+    if (ownedSet.has(name)) return;
+
+    if (isWishlisted(state, name)){
+      state.wishlist = state.wishlist.filter(x => x !== name);
+    } else {
+      state.wishlist = [...new Set([...state.wishlist, name])];
+    }
+    saveGame(state);
+    setPills(state);
+    renderStore(state);
+    renderWishlist(state);
+  }
+
+  function removeFromWishlist(state, name){
+    state.wishlist = state.wishlist.filter(x => x !== name);
+  }
+
+  // Wishlisted games get a small sale-tier nudge when they’re on sale
+  function saleCatForGame(state, gameName){
+    if (!isWishlisted(state, gameName)) return weightedPick(SALE_CATS);
+    const adjusted = SALE_CATS.map(c => ({
+      ...c,
+      w: c.w * (c.key === "fire" ? 1.5 : (c.key === "whoa" ? 1.12 : 1.0))
+    }));
+    return weightedPick(adjusted);
+  }
+
+  // -----------------------------
+  // Store offer generation (realistic rotation)
+  // -----------------------------
+  function recencyWeight(state, name){
+    const seen = state.lastSeen?.[name];
+    if (!seen) return 1.0;
+
+    const delta = state.monthNum - seen; // months since last seen
+    if (delta <= 1) return 0.06;   // basically "don’t repeat immediately"
+    if (delta === 2) return 0.22;
+    if (delta === 3) return 0.55;
+    return 1.0;
+  }
+
+  function candidateWeight(state, name, {owned=false} = {}){
+    let w = 1.0;
+
+    // Rotation realism
+    w *= recencyWeight(state, name);
+
+    // Wishlist makes it show up more (but not guaranteed)
+    if (isWishlisted(state, name)) w *= 1.75;
+
+    // Owned games can still show up late-game, but are de-prioritized
+    if (owned) w *= 0.22;
+
+    // Keep a tiny floor so we never hard-lock ourselves
+    return Math.max(0.01, w);
+  }
+
+  function weightedSampleWithoutReplacement(items, k){
+    // items = [{name,w}]
+    const chosen = [];
+    const pool = items.slice();
+    while (chosen.length < k && pool.length){
+      const total = pool.reduce((s, it) => s + it.w, 0);
+      let roll = Math.random() * total;
+      let idx = 0;
+      for (; idx < pool.length; idx++){
+        roll -= pool[idx].w;
+        if (roll <= 0) break;
+      }
+      const pickIdx = Math.min(idx, pool.length - 1);
+      chosen.push(pool[pickIdx].name);
+      pool.splice(pickIdx, 1);
+    }
+    return chosen;
+  }
+
+  function generateOffer(state){
+    const ownedSet = new Set(state.owned.map(o=>o.name));
+    const unowned = GAME_LIBRARY.filter(g => !ownedSet.has(g));
+
+    // Normally: pick only unowned. If fewer than 7 unowned, include owned too (still de-prioritized).
+    const poolNames = unowned.length >= 7 ? unowned : GAME_LIBRARY.slice();
+
+    const weightedPool = poolNames.map(name => ({
+      name,
+      w: candidateWeight(state, name, { owned: ownedSet.has(name) })
+    }));
+
+    let seven = weightedSampleWithoutReplacement(weightedPool, 7);
+
+    // If still somehow short (edge), top up randomly
+    if (seven.length < 7){
+      const extras = shuffle(poolNames.filter(n => !seven.includes(n))).slice(0, 7 - seven.length);
+      seven = seven.concat(extras);
+    }
+
+    // exactly 5 indices to be on sale
+    const saleIdxs = shuffle([0,1,2,3,4,5,6]).slice(0,5);
+
+    const offer = seven.map((name, idx) => {
+      const pb = state.priceBook[name];
+      const basePrice = pb.basePrice;
+
+      const onSale = saleIdxs.includes(idx);
+      let saleCat = null;
+      let discountPct = 0;
+      let salePrice = basePrice;
+
+      if (onSale){
+        saleCat = saleCatForGame(state, name);
+        discountPct = rint(saleCat.minPct, saleCat.maxPct);
+        salePrice = discountToDot99(basePrice, discountPct);
+      }
+
+      return {
+        name,
+        basePrice,
+        baseTierKey: pb.tierKey,
+        baseTierLabel: pb.tierLabel,
+        baseTierScore: pb.tierScore,
+        onSale,
+        saleCatKey: saleCat ? saleCat.key : null,
+        saleLabel: saleCat ? saleCat.label : "No Sale",
+        saleScore: saleCat ? saleCat.score : 0,
+        discountPct,
+        priceNow: salePrice
+      };
+    });
+
+    state.offer = offer;
+
+    // update lastSeen for rotation realism
+    for (const g of offer){
+      state.lastSeen[g.name] = state.monthNum;
+    }
+  }
+
+  // -----------------------------
+  // Ratings (7 months later + catch-up)
+  // -----------------------------
+  function dueRatings(state){
+    const m = state.monthNum;
+    return state.owned.filter(o => o.rating == null && (o.purchaseMonth + 7) === m);
+  }
+
+  function unrated(state){
+    return state.owned.filter(o => o.rating == null);
+  }
+
+  // -----------------------------
+  // Scoring
+  // -----------------------------
+  function computeScore(state){
+    let total = 0;
+    for (const o of state.owned){
+      const rating = o.rating ?? 1;
+      const per = (rating + o.baseTierScore + o.saleScore) / 3;
+      total += per;
+    }
+    const score = Math.round(total * 100);
+    return {
+      score,
+      games: state.owned.length
+    };
+  }
+
+  // -----------------------------
+  // DOM helpers
+  // -----------------------------
+  const el = (id) => document.getElementById(id);
+  function show(id){ el(id).classList.remove("hidden"); }
+  function hide(id){ el(id).classList.add("hidden"); }
+
+  function setPills(state){
+    const pills = [];
+    const { monthIndex, year } = addMonths(state.startMonthIndex, state.startYear, state.monthNum - 1);
+
+    pills.push(`<span class="pill"><span>🗓️</span><b>${MONTHS[monthIndex]} ${year}</b><span>(${state.monthNum}/24)</span></span>`);
+    pills.push(`<span class="pill"><span>💰</span><b>${fmtMoney(state.currency, state.funds)}</b></span>`);
+
+    const diffLabel = state.difficulty === "easy" ? "Easy" : (state.difficulty === "hard" ? "Hard" : "Challenge");
+    pills.push(`<span class="pill"><span>🎚️</span><b>${diffLabel}</b></span>`);
+
+    pills.push(`<span class="pill"><span>🧾</span><b>${state.owned.length}</b><span>owned</span></span>`);
+    pills.push(`<span class="pill"><span>⭐</span><b>${state.wishlist.length}</b><span>wishlist</span></span>`);
+
+    el("topPills").innerHTML = pills.join("");
+  }
+
+  function gRatingMonth(state, purchaseMonth){
+    return purchaseMonth + 7;
+  }
+
+  function renderStore(state){
+    const { monthIndex, year } = addMonths(state.startMonthIndex, state.startYear, state.monthNum - 1);
+    el("monthTitle").textContent = `Store — ${MONTHS[monthIndex]} ${year}`;
+
+    const ownedSet = new Set(state.owned.map(o=>o.name));
+    const sym = state.currency;
+
+    const cards = state.offer.map((g) => {
+      const owned = ownedSet.has(g.name);
+      const wish = isWishlisted(state, g.name);
+      const canBuy = !owned && state.funds >= g.priceNow;
+
+      const saleTag = g.onSale
+  ? `<span class="tag ${g.saleCatKey === "fire" ? "fire" : "sale"}">${g.discountPct}% off</span>`
+  : `<span class="tag">Regular Price</span>`;
+
+      const tierTag = `<span class="tag">${g.baseTierLabel} tier</span>`;
+      const ownedTag = owned ? `<span class="tag owned">Owned</span>` : "";
+      const wishTag = wish ? `<span class="tag wish">Wishlisted</span>` : "";
+
+      const priceHtml = g.onSale
+        ? `<span class="price">${fmtMoney(sym, g.priceNow)} <small>${fmtMoney(sym, g.basePrice)}</small></span>`
+        : `<span class="price">${fmtMoney(sym, g.basePrice)}</span>`;
+
+      const buyBtn = owned
+        ? `<button disabled>Owned</button>`
+        : `<button class="${canBuy ? "good" : ""}" ${canBuy ? "" : "disabled"} data-buy="${escapeHtml(g.name)}">${canBuy ? "Buy" : "Can't Afford"}</button>`;
+
+      const wishBtnLabel = wish ? "★ Wishlisted" : "☆ Wishlist";
+      const wishBtn = owned
+        ? `<button class="ghost" disabled>★ Owned</button>`
+        : `<button class="ghost" data-wish="${escapeHtml(g.name)}">${wishBtnLabel}</button>`;
+
+      let hint = "";
+      if (owned){
+        hint = `Already in your library.`;
+      } else {
+        const rateMonth = gRatingMonth(state, state.monthNum);
+        hint = (g.onSale ? `Buy now and you’ll rate it in month ${rateMonth}.` : `No sale on this one. Buying at full price can still be worth it.`);
+        if (wish){
+          hint += `\nWishlist: slightly increased chance to appear, and a tiny nudge toward better sale tiers when it’s on sale.`;
+        }
+      }
+
+      return `
+        <div class="card">
+          <div class="cardTop">
+            <div>
+              <div class="name">${escapeHtml(g.name)}</div>
+              <div class="meta">${saleTag}${wishTag}${ownedTag}</div>
+            </div>
+          </div>
+          <div class="priceRow">
+            ${priceHtml}
+            <div class="btnStack">
+              ${buyBtn}
+              ${wishBtn}
+            </div>
+          </div>
+          <div class="tiny">${escapeHtml(hint)}</div>
+        </div>
+      `;
+    }).join("");
+
+    el("storeCards").innerHTML = cards;
+
+    // Wire buy + wishlist buttons
+    el("storeCards").querySelectorAll("button[data-buy]").forEach(btn => {
+      btn.addEventListener("click", () => buyGame(state, btn.getAttribute("data-buy")));
+    });
+    el("storeCards").querySelectorAll("button[data-wish]").forEach(btn => {
+      btn.addEventListener("click", () => toggleWishlist(state, btn.getAttribute("data-wish")));
+    });
+
+    const due = dueRatings(state);
+    const note = due.length
+      ? `Before you can advance, you must rate ${due.length} game(s) purchased 7 months ago.`
+      : `Rotation: games can repeat, but recent repeats are unlikely. Wishlist slightly boosts appearances.`;
+    el("storeNote").textContent = note;
+  }
+
+  function renderWishlist(state){
+    const ownedSet = new Set(state.owned.map(o=>o.name));
+    const list = state.wishlist.filter(n => !ownedSet.has(n));
+
+    el("wishlistSummary").textContent =
+      list.length
+        ? `Wishlist (${list.length}): flag games you’re hunting for — especially a FIRE!! sale.`
+        : `Wishlist is empty. Tap ☆ on a store card to track a game you want.`;
+
+    const { monthIndex, year } = addMonths(state.startMonthIndex, state.startYear, state.monthNum - 1);
+    const nowLabel = `${MONTHS[monthIndex]} ${year}`;
+
+    const rows = list
+      .slice()
+      .sort((a,b)=>a.localeCompare(b))
+      .map(name => {
+        const last = state.lastSeen?.[name];
+        const lastText = last
+          ? (() => {
+              const d = addMonths(state.startMonthIndex, state.startYear, last - 1);
+              return `${MONTHS[d.monthIndex]} ${d.year}`;
+            })()
+          : "Never seen";
+        return `
+          <div class="row">
+            <div class="left">
+              <div class="title2">${escapeHtml(name)}</div>
+              <div class="tiny">Last seen: ${escapeHtml(lastText)} • Now: ${escapeHtml(nowLabel)}</div>
+            </div>
+            <div class="right">
+              <div class="rowBtns">
+                <button class="ghost" data-unwish="${escapeHtml(name)}">Remove</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+    el("wishlistList").innerHTML = rows || ``;
+
+    el("wishlistList").querySelectorAll("button[data-unwish]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const name = btn.getAttribute("data-unwish");
+        removeFromWishlist(state, name);
+        saveGame(state);
+        setPills(state);
+        renderStore(state);
+        renderWishlist(state);
+      });
+    });
+  }
+
+  function renderOwned(state){
+    el("ownedCount").textContent = `${state.owned.length} owned • ${state.wishlist.length} wishlisted`;
+
+    const sym = state.currency;
+    const rows = state.owned
+      .slice()
+      .sort((a,b)=>a.purchaseMonth - b.purchaseMonth)
+      .map(o => {
+        const r = o.rating == null ? "—" : String(o.rating);
+        const d = addMonths(state.startMonthIndex, state.startYear, o.purchaseMonth - 1);
+        const when = `${MONTHS[d.monthIndex]} ${d.year}`;
+        const saleText = (o.discountPct && o.discountPct > 0) ? `${o.discountPct}% off` : `Full price`;
+return `
+  <div class="row">
+    <div class="left">
+      <div class="title2">${escapeHtml(o.name)}</div>
+      <div class="tiny">Bought: ${when} • ${saleText}</div>
+    </div>
+            <div class="right">
+              <div>${fmtMoney(sym, o.pricePaid)}</div>
+              <div>Rate: ${r}</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+    el("ownedList").innerHTML = rows || `<div class="tiny">You own nothing yet. (Your wallet thanks you.)</div>`;
+
+    const upcoming = state.owned
+      .filter(o => o.rating == null)
+      .map(o => ({ o, due: o.purchaseMonth + 7 }))
+      .sort((a,b)=>a.due - b.due)
+      .slice(0, 6);
+
+    if (!upcoming.length){
+      el("upcomingRatings").textContent = `No ratings scheduled right now.`;
+      return;
+    }
+
+    const lines = upcoming.map(({o, due}) => {
+      const d = addMonths(state.startMonthIndex, state.startYear, due - 1);
+      return `• ${o.name} → ${MONTHS[d.monthIndex]} ${d.year} (month ${due})`;
+    });
+
+    el("upcomingRatings").textContent = `Upcoming ratings:\n${lines.join("\n")}`;
+  }
+
+  // -----------------------------
+  // Buying
+  // -----------------------------
+  function buyGame(state, name){
+    const ownedSet = new Set(state.owned.map(o=>o.name));
+    if (ownedSet.has(name)) return;
+
+    const g = state.offer.find(x => x.name === name);
+    if (!g) return;
+
+    const cost = g.onSale ? g.priceNow : g.basePrice;
+    if (state.funds < cost) return;
+
+    state.funds = +(state.funds - cost).toFixed(2);
+
+    state.owned.push({
+      name: g.name,
+      purchaseMonth: state.monthNum,
+      pricePaid: cost,
+      baseTierKey: g.baseTierKey,
+      baseTierScore: g.baseTierScore,
+      saleCatKey: g.onSale ? g.saleCatKey : null,
+      saleLabel: g.onSale ? g.saleLabel : "No Sale",
+      saleScore: g.onSale ? g.saleScore : 0,
+      discountPct: g.onSale ? g.discountPct : 0,
+      rating: null
+    });
+
+    // If it was wishlisted, remove it (you got it!)
+    removeFromWishlist(state, name);
+
+    setPills(state);
+    renderStore(state);
+    renderWishlist(state);
+    renderOwned(state);
+    saveGame(state);
+  }
+
+  // -----------------------------
+  // Modal ratings flow
+  // -----------------------------
+  function openModal({title, sub, text, buttons}){
+    el("modalTitle").textContent = title || "";
+    el("modalSub").textContent = sub || "";
+    el("modalText").textContent = text || "";
+    const btnWrap = el("modalBtns");
+    btnWrap.innerHTML = "";
+    for (const b of buttons){
+      const btn = document.createElement("button");
+      btn.textContent = b.label;
+      if (b.kind) btn.classList.add(b.kind);
+      btn.addEventListener("click", () => b.onClick && b.onClick());
+      btnWrap.appendChild(btn);
+    }
+    el("modalBackdrop").style.display = "flex";
+  }
+
+  function closeModal(){
+    el("modalBackdrop").style.display = "none";
+  }
+
+  async function runRatingsQueue(state, queue, {catchUp=false} = {}){
+    for (let i = 0; i < queue.length; i++){
+      const o = queue[i];
+      await new Promise((resolve) => {
+        const prefix = catchUp ? "Catch-up Rating" : "Monthly Rating";
+        openModal({
+          title: `${prefix}: ${o.name}`,
+          sub: `${i+1} of ${queue.length}`,
+          text: `Choose a rating:`,
+          buttons: [
+            { label: "1 — Like It", kind:"primary", onClick: () => { o.rating = 1; closeModal(); resolve(); } },
+            { label: "2 — Love It",  kind:"good",    onClick: () => { o.rating = 2; closeModal(); resolve(); } },
+            { label: "3 — One of the Greats!", kind:"", onClick: () => { o.rating = 3; closeModal(); resolve(); } }
+          ]
+        });
+      });
+    }
+    saveGame(state);
+    setPills(state);
+    renderStore(state);
+    renderWishlist(state);
+    renderOwned(state);
+  }
+
+  // -----------------------------
+  // Month progression
+  // -----------------------------
+  async function nextMonth(state){
+    const due = dueRatings(state);
+    if (due.length){
+      await runRatingsQueue(state, due, {catchUp:false});
+    }
+
+    if (state.monthNum >= 24){
+      const remaining = unrated(state);
+      if (remaining.length){
+        await runRatingsQueue(state, remaining, {catchUp:true});
+      }
+      endGame(state);
+      return;
+    }
+
+    state.monthNum += 1;
+    generateOffer(state);
+
+    saveGame(state);
+    setPills(state);
+    renderStore(state);
+    renderWishlist(state);
+    renderOwned(state);
+  }
+
+  // -----------------------------
+  // End game + leaderboard
+  // -----------------------------
+  function endGame(state){
+    hide("gameGrid");
+    hide("startPanel");
+    show("endPanel");
+
+    const hs = loadHighScores();
+    renderHighScores(hs);
+
+    const result = computeScore(state);
+    el("finalScore").textContent = String(result.score);
+    el("scoreBreakdown").textContent =
+      `${result.games} game(s) owned • avg per game ≈ ${result.games ? (result.score/result.games).toFixed(1) : "0.0"} points`;
+
+    window.__VG_LAST_SCORE__ = result.score;
+
+    wipeSave();
+    updateStartButtons();
+  }
+
+  function submitScore(){
+    const score = window.__VG_LAST_SCORE__ ?? 0;
+    const initials = uniqUpper2(el("initials").value);
+
+    const hs = loadHighScores();
+    hs.push({ initials, score, when: new Date().toISOString() });
+    hs.sort((a,b)=>b.score-a.score);
+    const trimmed = hs.slice(0,10);
+    saveHighScores(trimmed);
+    renderHighScores(trimmed);
+
+    el("btnSubmitScore").disabled = true;
+    el("btnSubmitScore").textContent = "Submitted";
+  }
+
+  // -----------------------------
+  // App flow
+  // -----------------------------
+  function updateStartButtons(){
+    const s = loadGame();
+    el("btnContinue").disabled = !s;
+    el("btnWipe").disabled = !s;
+  }
+
+  function startNew(){
+    const startMonthIndex = clamp(parseInt(el("startMonth").value, 10) || 0, 0, 11);
+    const startYearRaw = (el("startYear").value || "").trim();
+    const startYear = clamp(parseInt(startYearRaw, 10) || new Date().getFullYear(), 1000, 9999);
+    const currency = el("currency").value || "$";
+    const difficulty = el("difficulty").value || "easy";
+
+    const state = newGameState({startMonthIndex, startYear, currency, difficulty});
+    generateOffer(state);
+    saveGame(state);
+
+    launchGame(state);
+  }
+
+  function continueGame(){
+    const s = loadGame();
+    if (!s) return;
+    launchGame(s);
+  }
+
+  function launchGame(state){
+    hide("startPanel");
+    hide("endPanel");
+    show("gameGrid");
+
+    setPills(state);
+
+    if (!Array.isArray(state.offer) || state.offer.length !== 7){
+      generateOffer(state);
+    } else {
+      // ensure lastSeen exists; if missing, initialize softly
+      state.lastSeen = state.lastSeen && typeof state.lastSeen === "object" ? state.lastSeen : {};
+      for (const g of state.offer) state.lastSeen[g.name] = state.monthNum;
+    }
+
+    renderStore(state);
+    renderWishlist(state);
+    renderOwned(state);
+    saveGame(state);
+  }
+
+  function quitToTitle(){
+    hide("gameGrid");
+    hide("endPanel");
+    show("startPanel");
+    el("btnSubmitScore").disabled = false;
+    el("btnSubmitScore").textContent = "Submit Score";
+    updateStartButtons();
+    el("topPills").innerHTML = "";
+  }
+
+  // -----------------------------
+  // Wire UI
+  // -----------------------------
+  el("btnNew").addEventListener("click", startNew);
+  el("btnContinue").addEventListener("click", continueGame);
+  el("btnWipe").addEventListener("click", () => { wipeSave(); updateStartButtons(); });
+  el("btnSave").addEventListener("click", () => {
+    const s = loadGame();
+    if (s) saveGame(s);
+    openModal({
+      title: "Saved!",
+      sub: "",
+      text: "Your current run is saved in this browser (localStorage).",
+      buttons: [{ label:"OK", kind:"primary", onClick: () => closeModal() }]
+    });
+  });
+  el("btnQuit").addEventListener("click", quitToTitle);
+  el("btnNext").addEventListener("click", async () => {
+    const s = loadGame();
+    if (!s) return;
+    await nextMonth(s);
+  });
+
+  el("btnSubmitScore").addEventListener("click", submitScore);
+  el("btnRestart").addEventListener("click", () => {
+    el("initials").value = "";
+    el("btnSubmitScore").disabled = false;
+    el("btnSubmitScore").textContent = "Submit Score";
+    quitToTitle();
+  });
+el("btnRateAll").addEventListener("click", async () => {
+  const s = loadGame();
+  if (!s) return;
+
+  const allUnrated = unrated(s);
+  if (!allUnrated.length){
+    openModal({
+      title: "Nothing to Rate",
+      sub: "",
+      text: "You don't have any unrated games right now.",
+      buttons: [{ label:"OK", kind:"primary", onClick: () => closeModal() }]
+    });
+    return;
+  }
+
+  await runRatingsQueue(s, allUnrated, { catchUp: true });
+});
+
+el("btnEnd").addEventListener("click", async () => {
+  const s = loadGame();
+  if (!s) return;
+// UX polish: uppercase live + auto-submit when 2 letters entered
+el("initials").addEventListener("input", () => {
+  const box = el("initials");
+
+  // Uppercase + strip non-letters, limit to 2
+  const cleaned = (box.value || "")
+    .toUpperCase()
+    .replace(/[^A-Z]/g, "")
+    .slice(0, 2);
+
+  if (box.value !== cleaned) box.value = cleaned;
+
+  // Auto-submit when we have 2 letters and haven't submitted yet
+  if (cleaned.length === 2 && !el("btnSubmitScore").disabled) {
+    submitScore();
+  }
+});
+
+  // Set to month 24 for a consistent “Run Complete” vibe
+  s.monthNum = 24;
+
+  const remaining = unrated(s);
+  if (remaining.length){
+    await runRatingsQueue(s, remaining, { catchUp: true });
+  }
+
+  endGame(s);
+});
+
+  // Init
+  updateStartButtons();
+  renderHighScores(loadHighScores());
+})();
+</script>
+</body>
+</html>
+
+
